@@ -131,3 +131,5 @@ dmypy.json
 # data folder
 data/
 *.csv
+*.png
+*.pdf
