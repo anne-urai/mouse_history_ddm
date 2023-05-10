@@ -19,34 +19,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import brainbox.behavior.pyschofit as psy
 
-# Supress seaborn future warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
-
-# Some constants
-URL = 'http://ibl.flatironinstitute.org/public/behavior_paper_data.zip'
-QUERY = False  # Whether to query data through DataJoint (True) or use downloaded csv files (False)
-EXAMPLE_MOUSE = 'KS014'  # Mouse nickname used as an example
-CUTOFF_DATE = '2020-03-23'  # Date after which sessions are excluded, previously 30th Nov
-STABLE_HW_DATE = '2019-06-10'  # Date after which hardware was deemed stable
-
-# LAYOUT
-FIGURE_WIDTH = 8  # inch
-
-# EXCLUDED SESSIONS
-EXCLUDED_SESSIONS = ['a9fb578a-9d7d-42b4-8dbc-3b419ce9f424']  # Session UUID
-
-
-def group_colors():
-    return sns.color_palette("Dark2", 7)
-
-
-def institution_map():
-    institution_map = {'UCL': 'Lab 1', 'CCU': 'Lab 2', 'CSHL': 'Lab 3', 'NYU': 'Lab 4',
-                       'Princeton': 'Lab 5', 'SWC': 'Lab 6', 'Berkeley': 'Lab 7'}
-    col_names = ['Lab 1', 'Lab 2', 'Lab 3', 'Lab 4', 'Lab 5', 'Lab 6', 'Lab 7', 'All labs']
-
-    return institution_map, col_names
-
 
 def seaborn_style():
     """
@@ -189,7 +161,7 @@ def plot_psychometric(x, y, subj, **kwargs):
         g.set_xticklabels(['-100', '-25', '-12.5', '0', '12.5', '25', '100'],
                           size='small', rotation=60)
         g.set_xlim([-40, 40])
-        break_xaxis(y=-0.004)
+        break_xaxis()
 
     else:
         g.set_xticks([-100, -50, 0, 50, 100])
@@ -203,6 +175,7 @@ def plot_psychometric(x, y, subj, **kwargs):
 
 
 def plot_chronometric(x, y, subj, **kwargs):
+
     df = pd.DataFrame(
         {'signed_contrast': x, 'rt': y, 'subject_nickname': subj})
     df.dropna(inplace=True)  # ignore NaN RTs
@@ -211,11 +184,17 @@ def plot_chronometric(x, y, subj, **kwargs):
     # df2 = df2.groupby(['signed_contrast']).mean().reset_index()
     df2 = df2[['signed_contrast', 'rt', 'subject_nickname']]
 
-    # if 100 in df.signed_contrast.values and not 50 in
-    # df.signed_contrast.values:
-    df2['signed_contrast'] = df2['signed_contrast'].replace(-100, -35)
-    df2['signed_contrast'] = df2['signed_contrast'].replace(100, 35)
-    df2 = df2.loc[np.abs(df2.signed_contrast) != 50, :] # remove those
+    # only 'break' the x-axis and remove 50% contrast when 0% is present
+    # print(df2.signed_contrast.unique())
+    if 0. in df2.signed_contrast.values:
+        brokenXaxis = True
+
+        df2['signed_contrast'] = df2['signed_contrast'].replace(-100, -35)
+        df2['signed_contrast'] = df2['signed_contrast'].replace(100, 35)
+        df2 = df2.loc[np.abs(df2.signed_contrast) != 50, :] # remove those
+
+    else:
+        brokenXaxis = False
 
     ax = sns.lineplot(x='signed_contrast', y='rt', err_style="bars", mew=0.5,
                       ci=68, data=df2, **kwargs)
@@ -230,16 +209,18 @@ def plot_chronometric(x, y, subj, **kwargs):
                      'linewidth':0, 'linestyle':'None', 'mew':0.5,
                      'marker':'o', 'ci':95}, **kwargs})
 
-    ax.set_xticks([-35, -25, -12.5, 0, 12.5, 25, 35])
-    ax.set_xticklabels(['-100', '-25', '-12.5', '0', '12.5', '25', '100'],
-                       size='small', rotation=45)
-    ax.set_xlim([-40, 40])
+    if brokenXaxis:
+        ax.set_xticks([-35, -25, -12.5, 0, 12.5, 25, 35])
+        ax.set_xticklabels(['-100', '-25', '-12.5', '0', '12.5', '25', '100'],
+                          size='small', rotation=60)
+        ax.set_xlim([-40, 40])
+        break_xaxis()
 
-    if df['signed_contrast'].min() >= 0:
-        ax.set_xlim([-5, 40])
-        ax.set_xticks([0, 6, 12.5, 25, 35])
-        ax.set_xticklabels(['0', '6.25', '12.5', '25', '100'],
-                           size='small', rotation=45)
+    else:
+        ax.set_xticks([-100, -50, 0, 50, 100])
+        ax.set_xticklabels(['-100', '-50', '0', '50', '100'],
+                          size='small', rotation=60)
+        ax.set_xlim([-110, 110])
 
 
 def break_xaxis(y=0, **kwargs):
@@ -276,64 +257,6 @@ def add_n(x, y, sj, **kwargs):
         fontweight='normal',
         fontsize=6,
         color='k')
-
-
-def dj2pandas(behav):
-
-    # make sure all contrasts are positive
-    behav['trial_stim_contrast_right'] = np.abs(
-        behav['trial_stim_contrast_right'])
-    behav['trial_stim_contrast_left'] = np.abs(
-        behav['trial_stim_contrast_left'])
-
-    behav['signed_contrast'] = (
-        behav['trial_stim_contrast_right'] - behav['trial_stim_contrast_left']) * 100
-    # behav['signed_contrast'] = behav.signed_contrast.astype(int)
-
-    behav['trial'] = behav.trial_id  # for psychfuncfit
-    val_map = {'CCW': 1, 'No Go': 0, 'CW': -1}
-    behav['choice'] = behav['trial_response_choice'].map(val_map)
-    behav['correct'] = np.where(
-        np.sign(behav['signed_contrast']) == behav['choice'], 1, 0)
-    behav.loc[behav['signed_contrast'] == 0, 'correct'] = np.NaN
-
-    behav['choice_right'] = behav.choice.replace(
-        [-1, 0, 1], [0, np.nan, 1])  # code as 0, 100 for percentages
-    behav['choice2'] = behav.choice_right  # for psychfuncfit
-    behav['correct_easy'] = behav.correct
-    behav.loc[np.abs(behav['signed_contrast']) < 50, 'correct_easy'] = np.NaN
-    behav.rename(
-        columns={'trial_stim_prob_left': 'probabilityLeft'}, inplace=True)
-    behav['probabilityLeft'] = behav['probabilityLeft'] * 100
-    behav['probabilityLeft'] = behav.probabilityLeft.astype(int)
-
-    # compute rt
-    if 'trial_response_time' in behav.columns:
-        behav['rt'] = behav['trial_response_time'] - \
-            behav['trial_stim_on_time']
-        # ignore a bunch of things for missed trials
-        # don't count RT if there was no response
-        behav.loc[behav.choice == 0, 'rt'] = np.nan
-        # don't count RT if there was no response
-        behav.loc[behav.choice == 0, 'trial_feedback_type'] = np.nan
-
-    # CODE FOR HISTORY
-    behav['previous_choice'] = behav.choice.shift(1)
-    behav.loc[behav.previous_choice == 0, 'previous_choice'] = np.nan
-    behav['previous_outcome'] = behav.trial_feedback_type.shift(1)
-    behav.loc[behav.previous_outcome == 0, 'previous_outcome'] = np.nan
-    behav['previous_contrast'] = np.abs(behav.signed_contrast.shift(1))
-    behav['previous_choice_name'] = behav['previous_choice'].map(
-        {-1: 'left', 1: 'right'})
-    behav['previous_outcome_name'] = behav['previous_outcome'].map(
-        {-1: 'post_error', 1: 'post_correct'})
-    behav['repeat'] = (behav.choice == behav.previous_choice)
-
-    # # to more easily retrieve specific training days
-    # behav['days'] = (behav['session_start_time'] -
-    #                  behav['session_start_time'].min()).dt.days
-
-    return behav
 
 
 def num_star(pvalue):

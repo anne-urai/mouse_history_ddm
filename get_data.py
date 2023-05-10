@@ -117,7 +117,7 @@ for eid in tqdm(eids_to_use): # dont use all for now...
 # continue only with some columns we need
 df = pd.concat(behav)
 df = df[['eid', 'subj_idx', 'date', 'signed_contrast', 
-         'response', 'trial_duration', 'rt_wheel','feedbackType', 'trialnum']]
+         'response', 'trial_duration', 'firstmove_time','feedbackType', 'trialnum']]
 
 # %% 4. REFORMAT AND SAVE TRIALS
 df.to_csv(os.path.join(datapath, 'ibl_trainingchoiceworld_raw.csv'))

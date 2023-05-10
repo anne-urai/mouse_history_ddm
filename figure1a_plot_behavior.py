@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import seaborn as sns
 import brainbox as bb
-import paper_behavior_functions as tools
+import utils_plot as tools
 import choice_history_funcs as more_tools
 
 ## INITIALIZE A FEW THINGS
@@ -28,11 +28,11 @@ data = pd.read_csv(os.path.join(datapath, 'ibl_trainingchoiceworld_clean.csv'))
 
 fig = sns.FacetGrid(data, hue="subj_idx")
 fig.map(tools.plot_psychometric, "signed_contrast", "response",
-        "subj_idx", color='gray', alpha=0.3)
+        "subj_idx", color='lightgrey', alpha=0.3)
 # add means on top
 for axidx, ax in enumerate(fig.axes.flat):
     tools.plot_psychometric(data.signed_contrast, data.response,
-                      data.subj_idx, ax=ax, legend=False, color='k', linewidth=2)
+                      data.subj_idx, ax=ax, legend=False, color='darkblue', linewidth=2)
 
 #fig.map(sns.lineplot, "signed_contrast", "response", color='gray', alpha=0.7)     
 fig.despine(trim=True)
@@ -46,15 +46,15 @@ fig.savefig(os.path.join(figpath, "psychfuncs_allmice.png"), dpi=300)
 
 fig = sns.FacetGrid(data, hue="subj_idx")
 fig.map(tools.plot_chronometric, "signed_contrast", "rt", 
-    "subj_idx", color='gray', alpha=0.7)
+    "subj_idx", color='lightgray', alpha=0.3)
 for axidx, ax in enumerate(fig.axes.flat):
     tools.plot_chronometric(data.signed_contrast, data.rt,
-                      data.subj_idx, ax=ax, legend=False, color='k', linewidth=2)
+                      data.subj_idx, ax=ax, legend=False, color='darkblue', linewidth=2)
 fig.despine(trim=True)
 fig.set_axis_labels('Signed contrast (%)', 'RT (s)')
+fig.set_ylim([0, 1.5])
 ax.set_title('b. Chronometric function (n = %d)'%data.subj_idx.nunique())
 
 fig.savefig(os.path.join(figpath, "chronfuncs_allmice.png"))
 print('chronometric functions')
 
-# %%
