@@ -21,13 +21,20 @@ def compute_choice_history(trials):
 
     return trials
 
-def clean_rts(trials, cutoff=None):
+def clean_rts(rt, cutoff=[0.08, 2],
+              compare_with=None, comparison_cutoff=None):
 
-    # filter out impossible RTs
-    for colname in ['trial_duration', 'rt_wheel']:
-        trials.loc[trials[colname] < 0, colname] = np.nan # can't have negative RTs
-        trials.loc[trials[colname] > 60, colname] = np.nan # RT can't be longer than the ITI
-        if cutoff:
-            trials.loc[trials[colname] < cutoff, colname] = np.nan # remove RTs below cutoff, helpful for HDDM
+    assert (0 < np.nanmedian(rt) < 3) # median RT should be within some reasonable bounds
 
-    return trials
+    # remove RTs below and above cutoff, for HDDM 
+    rt_clean = rt.copy()
+    rt_clean[rt_clean < cutoff[0]] = np.nan 
+    rt_clean[rt_clean > cutoff[1]] = np.nan 
+
+    # only keep RTs when they are close to the trial duration
+    if compare_with is not None:
+        timing_difference = compare_with - rt
+        # assert all(timing_difference > 0) # all RTs should be smaller than trial duration
+        rt_clean[timing_difference > comparison_cutoff] = np.nan
+
+    return rt_clean

@@ -34,9 +34,7 @@ figpath = 'figures'
 usage = "HDDM_run.py [options]"
 parser = OptionParser(usage)
 parser.add_option("-m", "--model",
-                  default=['nohist', 'prevchoice_dcz', 'prevchoice_dc', 'prevchoice_z',
-                           'prevchoiceoutcome_dcz', 'prevchoiceoutcome_dc',
-                           'prevchoiceoutcome_z'],
+                  default=['nohist', 'nohist_stimcat', 'prevchoice_dcz', 'prevchoice_dc', 'prevchoice_z'],
                   type="string",
                   help="name of the model to run")
 parser.add_option("-d", "--dataset",
@@ -54,6 +52,7 @@ for d in opts.dataset:
 
     # GET DATA
     data = pd.read_csv(os.path.join(datapath, 'ibl_%s.csv' % d))
+
     # MAKE A PLOT OF THE RT DISTRIBUTIONS PER ANIMAL
     g = sns.FacetGrid(data, col='subj_idx', col_wrap=8)
     g.map(sns.distplot, "rt", kde=False, rug=True)

@@ -20,66 +20,13 @@ tools.seaborn_style()
 datapath = 'data'
 figpath = 'figures'
 
-# %% ================================= #
-# USE THE SAME FILE AS FOR HDDM FITS
-# ================================= #
-
-data = pd.read_csv(os.path.join(datapath, 'ibl_trainingchoiceworld.csv'))
-data.head(n=10)
-
-## Compare different measures of RT
-sns.scatterplot(x='trial_duration', y='rt', data=data, marker='.',
-                alpha=0.1, hue='subj_idx', legend=False)
-plt.savefig(os.path.join(figpath, "trialduration_vs_rtwheel.png"))
-
-data['rt_diff'] = data['trial_duration'] - data['rt']
-## Compare different measures of RT
-sns.displot(x='rt_diff', data=data)
-plt.savefig(os.path.join(figpath, "trialduration_vs_rtwheel_hist.png"))
-
-# %%
-data = more_tools.clean_rts(cutoff=None)
-
-# remove data without a well-estimated RT
-data.dropna(subset=['rt'], inplace=True)
-
-# %% ================================= #
-#  SUPP: RT CDF
-rt_cutoff = 10
-
-f, ax = plt.subplots(1,1,figsize=[3,3])
-hist, bins = np.histogram(data.rt, bins=1000)
-logbins = np.append(0, np.logspace(np.log10(bins[1]), np.log10(bins[-1]), len(bins)))
-ax.hist(data.rt, bins=logbins, cumulative=True, 
-    density=True, histtype='step')
-ax.set_xscale('log')
-
-# indicate the cutoff we use here
-ax.set_xlabel("RT (s)")
-ax.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(lambda y, pos: (
-	'{{:.{:1d}f}}'.format(int(np.maximum(-np.log10(y), 0)))).format(y)))
-ax.set_ylabel('CDF')
-# indicate the percentage of trials excluded by rt cutoff
-perc = (data.rt < rt_cutoff).mean()
-sns.lineplot(x=[0, rt_cutoff], y=[perc, perc], style=0, color='k', 
-            dashes={0: (2, 1)}, lw=1, legend=False)
-sns.lineplot(x=[rt_cutoff, rt_cutoff], y=[0, perc], style=0, color='k', 
-            dashes={0: (2, 1)}, lw=1, legend=False)
-ax.set(ylim=[-0.01, 1], xlim=[0.02, 59])
-sns.despine()
-plt.tight_layout()
-f.savefig(os.path.join(figpath, "rt_cdf.png"))
-# ToDo: where in the session do slow RTs occur? presumably at the end
-
-# %% ================================= #
-## NOW REMOVE THOSE LOW RTs
-
+data = pd.read_csv(os.path.join(datapath, 'ibl_trainingchoiceworld_clean.csv'))
 
 # %% ================================= #
 # REGULAR PSYCHFUNCS
 # ================================= #
 
-fig = sns.FacetGrid(data[data['rt'] <= rt_cutoff], hue="subj_idx")
+fig = sns.FacetGrid(data, hue="subj_idx")
 fig.map(tools.plot_psychometric, "signed_contrast", "response",
         "subj_idx", color='gray', alpha=0.3)
 # add means on top
@@ -109,3 +56,5 @@ ax.set_title('b. Chronometric function (n = %d)'%data.subj_idx.nunique())
 
 fig.savefig(os.path.join(figpath, "chronfuncs_allmice.png"))
 print('chronometric functions')
+
+# %%

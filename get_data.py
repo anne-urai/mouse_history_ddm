@@ -14,10 +14,10 @@ import numpy as np
 import sys, os, time
 import seaborn as sns
 import matplotlib.pyplot as plt
-# from ibllib.io.extractors.training_wheel import extract_wheel_moves, extract_first_movement_times
+from ibllib.io.extractors.training_wheel import extract_wheel_moves, extract_first_movement_times
 from brainbox.behavior.training import query_criterion
 from brainbox.io.one import load_wheel_reaction_times
-from tqdm  import tqdm
+from tqdm import tqdm
 
 from one.api import ONE # use ONE instead of DJ! more future-proof
 
@@ -79,7 +79,6 @@ for subject in tqdm(subject_names):
 # PRINT number of sessions
 assert(len(eids_to_use) % 3 == 0) # there should be 3 sessions per mouse
 print('%d sessions'%(len(eids_to_use)))
-# eids_to_use.to_csv(os.path.join(datapath, 'trainingchoiceworld_eids_to_use.csv'))
 
 # %% 2. LOAD TRIALS
 behav = []
@@ -97,8 +96,16 @@ for eid in tqdm(eids_to_use): # dont use all for now...
     trials['response'] = trials['choice'].map({1: 0, 0: np.nan, -1: 1})
 
     # better way to define RT: based on wheelMoves, Miles' code from Brainbox
-    try: trials['rt'] = load_wheel_reaction_times(eid)
-    except: continue; print('skipping %s, no RTs'%eid)
+    try: trials['firstmove_time'] = load_wheel_reaction_times(eid)
+        # # also: was this movement the final one?
+        # TODO: ask Miles why the public database does not contain wheel data for these training sessions?
+        # # https://int-brain-lab.github.io/iblenv/notebooks_external/docs_wheel_moves.html#Finding-reaction-time-and-'determined'-movements
+        # wheel = one.load_object(eid, 'wheel')
+        # moves = extract_wheel_moves(wheel['timestamps'], wheel['position'])
+        # assert moves, 'unable to load trials and wheelMoves data'
+        # trials['firstmove_time_wheel'], trials['wheel_is_final_movement'], ids \
+        #     = extract_first_movement_times(moves, trials_obj)
+    except: print('skipping %s, no RTs'%eid); continue
 
     # retrieve the mouse name, session etc
     ref_dict = one.eid2ref(eid)
@@ -110,11 +117,11 @@ for eid in tqdm(eids_to_use): # dont use all for now...
 # continue only with some columns we need
 df = pd.concat(behav)
 df = df[['eid', 'subj_idx', 'date', 'signed_contrast', 
-         'response', 'trial_duration', 'rt','feedbackType', 'trialnum']]
+         'response', 'trial_duration', 'rt_wheel','feedbackType', 'trialnum']]
 
 # %% 4. REFORMAT AND SAVE TRIALS
-df.to_csv(os.path.join(datapath, 'ibl_trainingchoiceworld.csv'))
-print(os.path.join(datapath, 'ibl_trainingchoiceworld.csv'))
+df.to_csv(os.path.join(datapath, 'ibl_trainingchoiceworld_raw.csv'))
+print(os.path.join(datapath, 'ibl_trainingchoiceworld_raw.csv'))
 print('%d mice, %d trials'%(df.subj_idx.nunique(),  df.subj_idx.count()))
 
 # %%
