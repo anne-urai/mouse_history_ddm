@@ -2,17 +2,8 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 import sys, os, glob, time
-import pickle
-import math
-
-import matplotlib
-
-matplotlib.use('Agg')  # to still plot even when no display is defined
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 # more handy imports
-from IPython import embed as shell
 import hddm, kabuki
 
 # ============================================ #
@@ -84,38 +75,6 @@ def bic(self):
     except:
         bic = np.nan    
     return bic
-
-# ============================================ #
-# ANNOTATE THE CORRELATION PLOT
-# ============================================ #
-
-def corrfunc(x, y, **kws):
-
-    # compute spearmans correlation across age groups
-    r, pval = sp.stats.spearmanr(x, y, nan_policy='omit')
-    print('%s, %s, %.2f, %.3f'%(x.name, y.name, r, pval))
-
-    if 'ax' in kws.keys():
-        ax = kws['ax']
-    else:
-        ax = plt.gca()
-
-    # if this correlates, draw a regression line across groups
-    if pval < 0.05/4:
-        sns.regplot(x, y, truncate=True, color='gray',
-        scatter=False, ci=None, robust=True, ax=ax)
-
-    # now plot the datapoint, with age groups
-    if 'yerr' in kws.keys():
-        ax.errorbar(x, y, yerr=kws['yerr'].values, fmt='none', zorder=0, ecolor='silver', elinewidth=0.5)
-        kws.pop('yerr', None)
-    sns.scatterplot(x=x, y=y, legend=False, **kws)
-
-    # annotate with the correlation coefficient + n-2 degrees of freedom
-    txt = r"$\rho$({}) = {:.3f}".format(len(x)-2, r) + "\n" + "p = {:.4f}".format(pval)
-    if pval < 0.0001:
-        txt = r"$\rho$({}) = {:.3f}".format(len(x)-2, r) + "\n" + "p < 0.0001"
-    ax.annotate(txt, xy=(.7, .1), xycoords='axes fraction', fontsize='small')
 
 
 def results_long2wide(md):
