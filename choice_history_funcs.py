@@ -15,7 +15,7 @@ def compute_choice_history(trials):
     trials['next_contrast']     = np.abs(trials.signed_contrast.shift(-1))
 
     # remove when not consecutive based on trial_index
-    trial_not_consecutive       = (trials.trialnum - trials.trialnum.shift(1)) != 1.
+    trials_not_consecutive       = (trials.trialnum - trials.trialnum.shift(1)) != 1.
     for col in ['previous_choice', 'previous_outcome', 'previous_contrast']:
         trials.loc[trials_not_consecutive, col] = np.nan
 

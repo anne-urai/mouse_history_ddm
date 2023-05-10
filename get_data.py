@@ -21,7 +21,7 @@ from tqdm  import tqdm
 
 from one.api import ONE # use ONE instead of DJ! more future-proof
 
-one = ONE(base_url='https://openalyx.internationalbrainlab.org')
+one = ONE(base_url='https://openalyx.internationalbrainlab.org', password='international')
 
 # define path to save the data and figures
 datapath = 'data'
@@ -110,7 +110,7 @@ for eid in tqdm(eids_to_use): # dont use all for now...
 # continue only with some columns we need
 df = pd.concat(behav)
 df = df[['eid', 'subj_idx', 'date', 'signed_contrast', 
-         'response', 'trial_duration', 'rt','feedbackType']]
+         'response', 'trial_duration', 'rt','feedbackType', 'trialnum']]
 
 # %% 4. REFORMAT AND SAVE TRIALS
 df.to_csv(os.path.join(datapath, 'ibl_trainingchoiceworld.csv'))

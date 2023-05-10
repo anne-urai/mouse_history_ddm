@@ -26,16 +26,15 @@ figpath = 'figures'
 
 data = pd.read_csv(os.path.join(datapath, 'ibl_trainingchoiceworld.csv'))
 data.head(n=10)
-data['rt'] = data['rt_wheel']
 
 ## Compare different measures of RT
-sns.scatterplot(x='trial_duration', y='rt_wheel', data=data, marker='.',
-                alpha=0.1, hue='id', legend=False)
+sns.scatterplot(x='trial_duration', y='rt', data=data, marker='.',
+                alpha=0.1, hue='subj_idx', legend=False)
 plt.savefig(os.path.join(figpath, "trialduration_vs_rtwheel.png"))
 
-data['rt_diff'] = data['trial_duration'] - data['rt_wheel']
+data['rt_diff'] = data['trial_duration'] - data['rt']
 ## Compare different measures of RT
-sns.distplot(x='rt_diff', data=data)
+sns.displot(x='rt_diff', data=data)
 plt.savefig(os.path.join(figpath, "trialduration_vs_rtwheel_hist.png"))
 
 # %%

@@ -20,7 +20,7 @@ tools.seaborn_style()
 
 datapath = 'data'
 figpath = 'figures'
-rt_cutoff = 3
+rt_cutoff = 2
 
 # %% ================================= #
 # USE THE SAME FILE AS FOR HDDM FITS
