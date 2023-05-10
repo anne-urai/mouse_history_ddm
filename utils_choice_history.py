@@ -4,6 +4,8 @@ import numpy as np
    
 def compute_choice_history(trials):
 
+    print('adding choice history columns to database...')
+
     # append choice history 
     trials['prevresp']      = trials.response.shift(1)
     trials['prevfb']        = trials.feedbackType.shift(1)
@@ -26,6 +28,7 @@ def clean_rts(rt, cutoff=[0.08, 2],
 
     assert (0 < np.nanmedian(rt) < 3) # median RT should be within some reasonable bounds
 
+    print('cleaning RTs...')
     # remove RTs below and above cutoff, for HDDM 
     rt_clean = rt.copy()
     rt_clean[rt_clean < cutoff[0]] = np.nan 

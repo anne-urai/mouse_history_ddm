@@ -4,12 +4,11 @@
 #SBATCH --output /home/uraiae/jobs/hddmnn_fit-%A_%a.out
 #SBATCH --mail-user=a.e.urai@fsw.leidenuniv.nl # mail when done
 #SBATCH --mail-type=END,FAIL # mail when done
-#SBATCH --time=1-00:00:00 # one day to fit, should be enough for simple HDDMnn models
-#SBATCH --partition=gpu-medium
-#SBATCH --ntasks=1 # submit one job per task
-#SBATCH --gpus=1
-#SBATCH --cpus-per-gpu=6
-#SBATCH --mem-per-gpu=90G
+#SBATCH --partition=gpu-short
+#SBATCH --time=01:00:00
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:1
+#SBATCH --mem-per-gpu=1GB
 
 # load necessary modules
 module purge
@@ -18,9 +17,9 @@ source activate hddmnn_env  # for all installed packages (hddm_env gives a kabuk
 # export PYTHONUNBUFFERED=TRUE # use -u to continually show output in logfile (unbuffered, bad when writing to home or data)
 
 # are we using the GPU?
-echo "[$SHELL] This is USER $SLURM_JOB_USER with JOBID $SLURM_JOB_ID"
+echo "[$SHELL] This is $SLURM_JOB_USER and this job has the ID $SLURM_JOB_ID"
 echo "[$SHELL] Starting at "$(date)
-echo "[$SHELL] Number of available CUDA devices: $CUDA_VISIBLE_DEVICES"
+echo "[$SHELL] Using GPU: "$CUDA_VISIBLE_DEVICES
 echo "[$SHELL] Conda env: "$CONDA_DEFAULT_ENV
 
 # Actually run the file with input args, only one trace_id for now

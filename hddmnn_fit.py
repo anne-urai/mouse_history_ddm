@@ -16,48 +16,65 @@ import os
 
 # import HDDM functions, defined in a separate file
 import utils_hddmnn
-
-# more handy imports
 import hddm
-import seaborn as sns
-sns.set()
 
 # define path to save the data and figures
 datapath = 'data'
 figpath = 'figures'
-modelpath = '/home/uraiae/data1/HDDMnn' # on ALICE
 
 # ============================================ #
 # READ INPUT ARGUMENTS
 # ============================================ #
 
-usage = "HDDM_run.py [options]"
-parser = OptionParser(usage)
+# read inputs
+parser = OptionParser("HDDM_run.py [options]")
 parser.add_option("-m", "--model",
-                  default=['ddm_nohist', 'ddm_nohist_stimcat', 
-                           'ddm_prevresp_dcz', 'ddm_prevresp_dc', 'ddm_prevresp_z'],
-                  type="string",
-                  help="name of the model to run")
+                  default=0,
+                  type="int",
+                  help="model number")
 parser.add_option("-d", "--dataset",
-                  default=["trainingchoiceworld_clean"],
-                  type="string",
-                  help="which data to fit on")
+                  default=0,
+                  type="int",
+                  help="dataset nr")
 opts, args = parser.parse_args()
-if isinstance(opts.model, str):
-    opts.model = [opts.model]
-print(opts)
+
+# find path depending on location and dataset
+usr = os.environ['USER']
+if 'uraiae' in usr: # ALICE
+    modelpath = '/home/uraiae/data1/HDDMnn' # on ALICE
+
+# HDDMnn folder in /home/uraiae/data1
+datasets = ['ibl_trainingchoiceworld_clean']
+
+# select only this dataset
+if isinstance(opts.dataset, str):
+    opts.dataset = [opts.dataset]
+dataset = datasets[opts.dataset]
 
 # ============================================ #
+# READ INPUT ARGUMENTS; model
+# ============================================ #
 
-for d in opts.dataset:
+models = ['ddm_nohist', 
+          'ddm_nohist_stimcat', 
+          'ddm_prevresp_dcz', 
+          'ddm_prevresp_dc', 
+          'ddm_prevresp_z'
+          ]
 
-    # GET DATA
-    data = pd.read_csv(os.path.join(datapath, 'ibl_%s.csv' % d))
-    data = data.dropna(subset=['rt', 'response', 'prevresp', 'prevfb', 'signed_contrast'])
+if isinstance(opts.model, str):
+    opts.model = [opts.model]
+# select only this model
+m = models[opts.model]
 
-    # FIT THE ACTUAL MODEL
-    for m in opts.model:
-        utils_hddmnn.run_model(data, m, os.path.join(modelpath, d, m), n_samples=1000, force=True)
+# ============================================ #
+# NOW RUN THE FITS ON THIS DATASET
 
-        # also sample posterior predictives (will only do if doesn't already exists)
-        # hddm_funcs.posterior_predictive(os.path.join(datapath, d, m), n_samples=100)
+data = pd.read_csv(os.path.join(datapath, '%s.csv' % dataset))
+data = data.dropna(subset=['rt', 'response', 'prevresp', 'prevfb', 'signed_contrast'])
+
+# FIT THE ACTUAL MODEL
+utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=1000)
+
+# also sample posterior predictives (will only do if doesn't already exists)
+# hddm_funcs.posterior_predictive(os.path.join(datapath, d, m), n_samples=100)

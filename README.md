@@ -22,7 +22,7 @@ figure1c_history_strategy.py
 ```
 
 Then, on ALICE:
-`hddmnn_submit.sh -d 0 -m 0` (will activate `hddmnn_env`)
+`sbatch hddmnn_submit.sh 0 0` (will activate `hddmnn_env` and submit an ALICE job)
 
 And plot the results of these fits
 ```python
