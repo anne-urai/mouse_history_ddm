@@ -5,18 +5,18 @@ import numpy as np
 def compute_choice_history(trials):
 
     # append choice history 
-    trials['previous_choice']   = trials.response.shift(1)
-    trials['previous_outcome']  = trials.feedbackType.shift(1)
-    trials['previous_contrast'] = np.abs(trials.signed_contrast.shift(1))
+    trials['prevresp']      = trials.response.shift(1)
+    trials['prevfb']        = trials.feedbackType.shift(1)
+    trials['prevcontrast']  = np.abs(trials.signed_contrast.shift(1))
 
     # also append choice future (for correction a la Lak et al.)
-    trials['next_choice']       = trials.response.shift(-1)
-    trials['next_outcome']      = trials.feedbackType.shift(-1)
-    trials['next_contrast']     = np.abs(trials.signed_contrast.shift(-1))
+    trials['nextresp']      = trials.response.shift(-1)
+    trials['nextfb']        = trials.feedbackType.shift(-1)
+    trials['nextcontrast']  = np.abs(trials.signed_contrast.shift(-1))
 
     # remove when not consecutive based on trial_index
     trials_not_consecutive       = (trials.trialnum - trials.trialnum.shift(1)) != 1.
-    for col in ['previous_choice', 'previous_outcome', 'previous_contrast']:
+    for col in ['prevresp', 'prevfb', 'prevcontrast']:
         trials.loc[trials_not_consecutive, col] = np.nan
 
     return trials

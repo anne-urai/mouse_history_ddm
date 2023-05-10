@@ -12,7 +12,7 @@ import matplotlib as mpl
 import seaborn as sns
 import brainbox as bb
 import utils_plot as tools
-import choice_history_funcs as more_tools
+import utils_choice_history as more_tools
 
 datapath = 'data'
 figpath = 'figures'

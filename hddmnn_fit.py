@@ -15,7 +15,7 @@ import pandas as pd
 import os
 
 # import HDDM functions, defined in a separate file
-import hddmnn_funcs
+import utils_hddmnn
 
 # more handy imports
 import hddm
@@ -57,7 +57,7 @@ for d in opts.dataset:
 
     # FIT THE ACTUAL MODEL
     for m in opts.model:
-        hddmnn_funcs.run_model(data, m, os.path.join(modelpath, d, m), n_samples=1000, force=True)
+        utils_hddmnn.run_model(data, m, os.path.join(modelpath, d, m), n_samples=1000, force=True)
 
         # also sample posterior predictives (will only do if doesn't already exists)
         # hddm_funcs.posterior_predictive(os.path.join(datapath, d, m), n_samples=100)

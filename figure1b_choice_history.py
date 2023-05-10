@@ -12,7 +12,7 @@ import matplotlib as mpl
 import seaborn as sns
 import brainbox.behavior.pyschofit as psy
 import utils_plot as tools
-import choice_history_funcs as more_tools
+import utils_choice_history as more_tools
 
 ## INITIALIZE A FEW THINGS
 sns.set(style="ticks", context="paper", palette="colorblind")
@@ -27,7 +27,7 @@ figpath = 'figures'
 
 data = pd.read_csv(os.path.join(datapath, 'ibl_trainingchoiceworld_clean.csv'))
 data.head(n=10)
-data['previous_trial'] = 100*data.previous_outcome + 10*data.previous_choice  # for color coding
+data['previous_trial'] = 100*data.prevfb + 10*data.prevresp  # for color coding
 cmap = sns.color_palette("Paired")
 cmap = cmap[4:]
 
