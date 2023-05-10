@@ -78,8 +78,8 @@ plt.savefig(os.path.join(figpath, "rt_raw_distributions.png"))
 plt.savefig(os.path.join(figpath, "rt_raw_distributions_allsj.png"))
 fig = sns.FacetGrid(data=data_clean, col='subj_idx', hue='rt_raw_category', 
                     palette=['lightgrey', 'darkblue', 'lightgrey'],
-                    col_wrap=6)
-fig.map(sns.histplot, 'rt_raw', binwidth=0.1)
+                    col_wrap=6, sharex=True, sharey=False)
+fig.map(sns.histplot, 'rt_raw', binwidth=0.075)
 fig.set(xlabel=xlabel, xlim=[-0.1, rt_cutoff[1] + 0.05], 
         yticklabels=[])
 sns.despine(trim=True)
