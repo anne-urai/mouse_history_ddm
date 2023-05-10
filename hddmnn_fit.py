@@ -8,8 +8,8 @@ Anne Urai, 2019, CSHL
 # GETTING STARTED
 # ============================================ #
 
-import matplotlib as mpl
-mpl.use('Agg')  # to still plot even when no display is defined
+# import matplotlib as mpl
+# mpl.use('Agg')  # to still plot even when no display is defined
 from optparse import OptionParser
 import pandas as pd
 import os
@@ -53,8 +53,7 @@ for d in opts.dataset:
 
     # GET DATA
     data = pd.read_csv(os.path.join(datapath, 'ibl_%s.csv' % d))
-    data['stimulus'] = data['signed_contrast']
-    data = data.dropna(subset=['rt', 'response', 'previous_choice', 'previous_outcome', 'stimulus'])
+    data = data.dropna(subset=['rt', 'response', 'prevresp', 'prevfb', 'signed_contrast'])
 
     # FIT THE ACTUAL MODEL
     for m in opts.model:

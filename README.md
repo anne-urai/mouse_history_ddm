@@ -7,7 +7,7 @@ Questions? a.e.urai@fsw.leidenuniv.nl
 
 ##### Requirements
 - install the [iblenv](https://github.com/int-brain-lab/iblenv) for getting IBL data
-- install the [hddmnn_env2](https://github.com/hddm-devs/hddm#installation) for fitting HDDM models. See [here](https://github.com/anne-urai/2022_Urai_choicehistory_MEG/blob/main/hddmnn_env2.yml) for a `.yml` environment file.
+- install the [hddmnn_env](https://github.com/hddm-devs/hddm#installation) for fitting HDDMnn models. See [here](https://github.com/anne-urai/2022_Urai_choicehistory_MEG/blob/main/hddmnn_env2.yml) for a `.yml` environment file.
 
 ##### Instructions
 
@@ -22,7 +22,7 @@ figure1c_history_strategy.py
 ```
 
 Then, on ALICE:
-`hddm_submit.sh -d 0 -m 0` (will activate `hddm_env2`)
+`hddmnn_submit.sh -d 0 -m 0` (will activate `hddmnn_env`)
 
 And plot the results of these fits
 ```python

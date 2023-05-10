@@ -14,7 +14,7 @@
 
 # load necessary modules
 module load Miniconda3/4.9.2
-source activate hddmnn_env2  # for all installed packages (hddm_env gives a kabuki bug for some reason)
+source activate hddmnn_env  # for all installed packages (hddm_env gives a kabuki bug for some reason)
 # export PYTHONUNBUFFERED=TRUE # use -u to continually show output in logfile (unbuffered, bad when writing to home or data)
 
 # are we using the GPU?
