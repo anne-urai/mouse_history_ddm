@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import seaborn as sns
 import brainbox as bb
-import paper_behavior_functions as tools
+import utils_plot as tools
 import choice_history_funcs as more_tools
 
 datapath = 'data'
@@ -54,17 +54,20 @@ data_clean['rt_raw_category'] = pd.cut(data['rt_raw'],
 # squash for easier plotting - to show all slow trials as 1 bin 
 data_clean.rt_raw[data_clean.rt_raw > rt_cutoff[1]] = rt_cutoff[1] 
 
-fig = sns.displot(data=data_clean, x='rt_raw', 
-                  hue='rt_raw_category', multiple='stack',
+# use FacetGrid to ensure the same figure size (approximately)
+fig = sns.FacetGrid(data=data_clean, hue='rt_raw_category',
                   palette=['lightgrey', 'darkblue', 'lightgrey'])
+fig.map(sns.histplot, "rt_raw", multiple='stack', legend=False, binwidth=0.06)
 
 if rt_variable_name == 'trial_duration':
     xlabel = 'Trial duration (s)'
 elif rt_variable_name == 'firstmove_time':
     xlabel = 'Time of first movement (s)'
 
-fig.set(xlabel=xlabel, xlim=[-0.1, rt_cutoff[1] + 0.05], ylim=[0, 7000], 
-        yticklabels=[])
+for axidx, ax in enumerate(fig.axes.flat):
+    ax.set(xlabel=xlabel, xlim=[-0.1, rt_cutoff[1] + 0.05], 
+        yticklabels=[],
+        title='a. Reaction time distributions')
 sns.despine(trim=True)
 
 # annotate: how many trials are below the lower cutoff, and how many are above the higher cutoff?
@@ -72,7 +75,9 @@ percent_below = (data_clean.rt_raw < rt_cutoff[0]).mean() * 100
 percent_above = (data_clean.rt_raw >= rt_cutoff[1]).mean() * 100
 plt.annotate('%d%%'%percent_below, xy=(rt_cutoff[0]/2, 2000), ha='center', fontsize=7)
 plt.annotate('%d%%'%percent_above, xy=(rt_cutoff[1]-0.1, 3000), ha='center', fontsize=7)
+
 plt.savefig(os.path.join(figpath, "rt_raw_distributions.png"))
+plt.savefig(os.path.join(figpath, "rt_raw_distributions.pdf"))
 
 #%% now plot the same, but one panel per mouse
 plt.savefig(os.path.join(figpath, "rt_raw_distributions_allsj.png"))
@@ -84,6 +89,7 @@ fig.set(xlabel=xlabel, xlim=[-0.1, rt_cutoff[1] + 0.05],
         yticklabels=[])
 sns.despine(trim=True)
 plt.savefig(os.path.join(figpath, "rt_raw_distributions_allsj.png"))
+plt.savefig(os.path.join(figpath, "rt_raw_distributions_allsj.pdf"))
 
 # # %% ================================= #
 # #  SUPP: RT CDF

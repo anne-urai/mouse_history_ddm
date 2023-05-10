@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import seaborn as sns
 import brainbox.behavior.pyschofit as psy
-import paper_behavior_functions as tools
+import utils_plot as tools
 import choice_history_funcs as more_tools
 
 ## INITIALIZE A FEW THINGS

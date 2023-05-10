@@ -101,8 +101,8 @@ def plot_psychometric(x, y, subj, **kwargs):
         {'choice2': 'count', 'choice': 'mean'}).reset_index()
     df2.rename(columns={"choice2": "ntrials",
                         "choice": "fraction"}, inplace=True)
-    df2 = df2.groupby(['signed_contrast']).mean().reset_index()
-    df2 = df2[['signed_contrast', 'ntrials', 'fraction']]
+    df2 = df2.groupby(['signed_contrast'])[['ntrials', 'fraction']].mean().reset_index()
+    #df2 = df2[['signed_contrast', 'ntrials', 'fraction']]
 
     # only 'break' the x-axis and remove 50% contrast when 0% is present
     # print(df2.signed_contrast.unique())
@@ -154,7 +154,7 @@ def plot_psychometric(x, y, subj, **kwargs):
         sns.lineplot(x=df3['signed_contrast'], y=df3['choice'],
                      **{**{'err_style':"bars",
                      'linewidth':0, 'linestyle':'None', 'mew':0.5,
-                     'marker':'o', 'ci':95}, **kwargs})
+                     'marker':'o', 'errorbar':('ci', 95)}, **kwargs})
 
     if brokenXaxis:
         g.set_xticks([-35, -25, -12.5, 0, 12.5, 25, 35])
@@ -197,7 +197,7 @@ def plot_chronometric(x, y, subj, **kwargs):
         brokenXaxis = False
 
     ax = sns.lineplot(x='signed_contrast', y='rt', err_style="bars", mew=0.5,
-                      ci=68, data=df2, **kwargs)
+                      errorbar=('ci', 95), data=df2, **kwargs)
 
     # all the points
     if df['subject_nickname'].nunique() > 1:
@@ -207,7 +207,7 @@ def plot_chronometric(x, y, subj, **kwargs):
             data=df2,
             **{**{'err_style':"bars",
                      'linewidth':0, 'linestyle':'None', 'mew':0.5,
-                     'marker':'o', 'ci':95}, **kwargs})
+                     'marker':'o', 'errorbar':('ci', 95)}, **kwargs})
 
     if brokenXaxis:
         ax.set_xticks([-35, -25, -12.5, 0, 12.5, 25, 35])
@@ -215,6 +215,7 @@ def plot_chronometric(x, y, subj, **kwargs):
                           size='small', rotation=60)
         ax.set_xlim([-40, 40])
         break_xaxis()
+        ax.set_ylim([0, df2['rt'].max()*1.1])
 
     else:
         ax.set_xticks([-100, -50, 0, 50, 100])

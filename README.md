@@ -15,8 +15,10 @@ Questions? a.e.urai@fsw.leidenuniv.nl
 
 ```python
 get_data.py # will grab data from IBL public server
+preprocess_data.py # select good RTs to work with
 figure1a_plot_behavior.py # plots basic things about the data
 figure1b_choice_history.py # fits basic psychometric functions with history terms
+figure1c_history_strategy.py
 ```
 
 Then, on ALICE:

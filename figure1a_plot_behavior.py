@@ -39,6 +39,7 @@ fig.despine(trim=True)
 fig.set_axis_labels('Signed contrast (%)', 'Rightward choice (%)')
 ax.set_title('a. Psychometric function (n = %d)'%data.subj_idx.nunique())
 fig.savefig(os.path.join(figpath, "psychfuncs_allmice.png"), dpi=300)
+fig.savefig(os.path.join(figpath, "psychfuncs_allmice.pdf"))
 
 # %% ================================= #
 # CHRONFUNCS on good RTs
@@ -52,9 +53,7 @@ for axidx, ax in enumerate(fig.axes.flat):
                       data.subj_idx, ax=ax, legend=False, color='darkblue', linewidth=2)
 fig.despine(trim=True)
 fig.set_axis_labels('Signed contrast (%)', 'RT (s)')
-fig.set_ylim([0, 1.5])
 ax.set_title('b. Chronometric function (n = %d)'%data.subj_idx.nunique())
-
 fig.savefig(os.path.join(figpath, "chronfuncs_allmice.png"))
-print('chronometric functions')
+fig.savefig(os.path.join(figpath, "chronfuncs_allmice.pdf"))
 
