@@ -23,7 +23,7 @@ echo "[$SHELL] Using GPU: "$CUDA_VISIBLE_DEVICES
 echo "[$SHELL] Conda env: "$CONDA_DEFAULT_ENV
 
 # Actually run the file with input args, only one trace_id for now
-python /home/uraiae/code/int-brain-lab/mouse_aging/choice_history_hddm/hddmnn_fit.py -d $1 -m $2 -i 0
+python /home/uraiae/code/int-brain-lab/mouse_history_ddm/hddmnn_fit.py -d $1 -m $2 -i 0
 
 # Wrap up
 echo "[$SHELL] Finished at "$(date)
