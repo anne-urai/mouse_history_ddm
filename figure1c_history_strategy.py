@@ -12,7 +12,7 @@ import matplotlib as mpl
 import seaborn as sns
 import brainbox.behavior.pyschofit as psy
 import utils_plot as tools
-import choice_history_funcs as more_tools
+import utils_choice_history as more_tools
 
 ## INITIALIZE A FEW THINGS
 sns.set(style="ticks", context="paper", palette="colorblind")
