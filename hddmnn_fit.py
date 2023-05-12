@@ -18,6 +18,13 @@ import os
 import utils_hddmnn
 import hddm
 
+# -----------------
+# check if we have a GPU available
+print ('Checking if there is a GPU?')
+import torch
+print(torch.cuda.is_available())
+# ------------------
+
 # define path to save the data and figures
 datapath = 'data'
 figpath = 'figures'
