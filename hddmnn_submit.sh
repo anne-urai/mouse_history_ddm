@@ -4,8 +4,8 @@
 #SBATCH --output /home/uraiae/jobs/hddmnn_fit-%A_%a.out
 #SBATCH --mail-user=a.e.urai@fsw.leidenuniv.nl # mail when done
 #SBATCH --mail-type=END,FAIL # mail when done
-#SBATCH --time=1-00:00:00 # one day to fit, should be enough for simple HDDMnn models
 #SBATCH --partition=gpu-medium
+#SBATCH --time=1-00:00:00 # one day to fit, should be enough for simple HDDMnn models
 #SBATCH --ntasks=1 # submit one job per task
 #SBATCH --gpus=1
 #SBATCH --cpus-per-gpu=6

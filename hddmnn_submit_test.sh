@@ -5,7 +5,7 @@
 #SBATCH --mail-user=a.e.urai@fsw.leidenuniv.nl # mail when done
 #SBATCH --mail-type=END,FAIL # mail when done
 #SBATCH --partition=gpu-short
-#SBATCH --time=01:00:00
+#SBATCH --time=04:00:00
 #SBATCH --ntasks=1 # submit one job per task
 #SBATCH --gpus=1
 #SBATCH --cpus-per-gpu=6
@@ -24,7 +24,6 @@ echo "[$SHELL] Starting at "$(date)
 echo "[$SHELL] Running on node $HOSTNAME"
 echo "[$SHELL] Conda env: "$CONDA_DEFAULT_ENV
 echo "[$SHELL] Using GPU: "$CUDA_VISIBLE_DEVICES
-nvidia-smi # You can also check which GPU has been allocated by adding the command “nvidia-smi” to your batch file. The output will be stored in the slurm output file.
 
 # Actually run the file with input args, only one trace_id for now
 python /home/uraiae/code/int-brain-lab/mouse_history_ddm/hddmnn_fit.py -d $1 -m $2

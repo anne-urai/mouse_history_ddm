@@ -23,6 +23,7 @@ figure1c_history_strategy.py
 
 Then, on ALICE:
 `sbatch hddmnn_submit.sh 0 0` (will activate `hddmnn_env` and submit an ALICE job)
+run several models on the same dataset: `for m in {0..4}: do sbatch hddmnn_submit.sh 0 $m; done`
 
 And plot the results of these fits
 ```python

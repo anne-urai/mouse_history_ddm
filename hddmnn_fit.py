@@ -79,7 +79,4 @@ data = pd.read_csv(os.path.join(datapath, '%s.csv' % dataset))
 data = data.dropna(subset=['rt', 'response', 'prevresp', 'prevfb', 'signed_contrast'])
 
 # FIT THE ACTUAL MODEL
-utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=1000)
-
-# also sample posterior predictives (will only do if doesn't already exists)
-# hddm_funcs.posterior_predictive(os.path.join(datapath, d, m), n_samples=100)
+utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=2000)
