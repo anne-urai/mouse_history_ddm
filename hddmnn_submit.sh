@@ -13,6 +13,7 @@
 
 # load necessary modules
 module purge
+module load gcc/8.2.0 # activate GCC for Fortran compiler
 module load Miniconda3/4.9.2
 source activate hddmnn_env  # for all installed packages (hddm_env gives a kabuki bug for some reason)
 # export PYTHONUNBUFFERED=TRUE # use -u to continually show output in logfile (unbuffered, bad when writing to home or data)
