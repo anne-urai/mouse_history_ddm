@@ -21,9 +21,9 @@ figure1b_choice_history.py # fits basic psychometric functions with history term
 figure1c_history_strategy.py
 ```
 
-Then, on ALICE:
+Then, on [ALICE](https://pubappslu.atlassian.net/wiki/spaces/HPCWIKI/pages/37519361/ALICE):
 `sbatch hddmnn_submit.sh 0 0` (will activate `hddmnn_env` and submit an ALICE job)
-run several models on the same dataset: `for m in {0..4}: do sbatch hddmnn_submit.sh 0 $m; done`
+run several models on the same dataset: `for m in {0..4}; do sbatch hddmnn_submit.sh 0 $m; done`
 
 And plot the results of these fits
 ```python

@@ -26,23 +26,19 @@ def make_model(data, mname):
 
     if mname == 'ddm_nohist_stimcat':
         # confirm that the drift rate scales linearly with signed contrast
-    
-        v_reg = {'model': 'v ~ 1 + C:signed_contrast', 'link_func': lambda x:x}
-        z_reg = {'model': 'z ~ 1', 'link_func': lambda x:x}
-        
+        # use the regular HDDMnn, not the regressor model, for this
+
         model = 'ddm' # start simple
-        hddmnn_model = hddm.HDDMnnRegressor(data,
-                                   [v_reg, z_reg],
+        hddmnn_model = hddm.HDDMnn(data,
                                    model = model,
+                                   depends_on = {'v': 'signed_contrast'},
                                    include = hddm.simulators.model_config[model]['hddm_include'],
                                    p_outlier = 0.05,
-                                   is_group_model = True, # hierarchical model, parameters per subject
-                                   group_only_regressors = False,
-                                   informative = False)
+                                   is_group_model = True)
         
     elif mname == 'ddm_prevresp_dc':
         
-        v_reg = {'model': 'v ~ 1 + stimulus + prevresp', 'link_func': lambda x:x}
+        v_reg = {'model': 'v ~ 1 + signed_contrast + prevresp', 'link_func': lambda x:x}
         z_reg = {'model': 'z ~ 1', 'link_func': lambda x: x}
         
         model = 'ddm' # start simple
@@ -57,7 +53,7 @@ def make_model(data, mname):
         
     elif mname == 'ddm_prevresp_z':
         
-        v_reg = {'model': 'v ~ 1 + stimulus', 'link_func': lambda x:x}
+        v_reg = {'model': 'v ~ 1 + signed_contrast', 'link_func': lambda x:x}
         z_reg = {'model': 'z ~ 1 + prevresp', 'link_func': lambda x: x}
         
         model = 'ddm' # start simple
@@ -72,7 +68,7 @@ def make_model(data, mname):
         
     elif mname == 'ddm_prevresp_dcz':
         
-        v_reg = {'model': 'v ~ 1 + stimulus + prevresp', 'link_func': lambda x:x}
+        v_reg = {'model': 'v ~ 1 + signed_contrast + prevresp', 'link_func': lambda x:x}
         z_reg = {'model': 'z ~ 1 + prevresp', 'link_func': lambda x: x}
         
         model = 'ddm' # start simple
