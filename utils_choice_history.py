@@ -41,3 +41,16 @@ def clean_rts(rt, cutoff=[0.08, 2],
         rt_clean[timing_difference > comparison_cutoff] = np.nan
 
     return rt_clean
+
+def rescale_contrast(x):
+    """
+    Since signed contrast does not linearly map onto drift rate, rescale it (with a basic tanh function)
+    to approximate linearity (so that we can include a single, linear 'contrast' term in the regression models)
+
+    See plot_contrast_rescale.py for a tanh fit, which generates the parameters below
+    """
+
+    a = 2.13731484
+    b = 0.05322221
+    
+    return a * np.tanh( b * x )

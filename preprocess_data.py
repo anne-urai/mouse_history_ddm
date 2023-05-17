@@ -35,6 +35,9 @@ data['rt'] = more_tools.clean_rts(data[rt_variable_name], cutoff=rt_cutoff,
 # add choice history information
 data_clean = more_tools.compute_choice_history(data)
 
+# rescale contrast, so that we can enter as a linear term for the drift rate
+data_clean['stimulus'] = more_tools.rescale_contrast(data_clean['signed_contrast'])
+
 # save to csv   
 data_clean.to_csv(os.path.join(datapath, 'ibl_trainingchoiceworld_clean.csv'), index=False)
 

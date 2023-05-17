@@ -8,16 +8,15 @@ Anne Urai, 2019, CSHL
 # GETTING STARTED
 # ============================================ #
 
-# import matplotlib as mpl
-# mpl.use('Agg')  # to still plot even when no display is defined
 from optparse import OptionParser
 import pandas as pd
 import os
+import numpy as np
 
-# check if we have a GPU available
-print ('Checking if there is a GPU...')
-import torch
-print(torch.cuda.is_available())
+# # check if we have a GPU available
+# print ('Checking if there is a GPU...')
+# import torch
+# print(torch.cuda.is_available())
 
 # import HDDM functions, defined in a separate file
 import utils_hddmnn
@@ -60,11 +59,19 @@ dataset = datasets[opts.dataset]
 # READ INPUT ARGUMENTS; model
 # ============================================ #
 
-models = ['ddm_nohist', 
-          'ddm_nohist_stimcat', 
-          'ddm_prevresp_dcz', 
-          'ddm_prevresp_dc', 
-          'ddm_prevresp_z'
+models = ['ddm_nohist_stimcat', 
+          'ddm_nohist', # 1
+          'ddm_prevresp_z', 
+          'ddm_prevresp_v', 
+          'ddm_prevresp_zv',
+          'angle_nohist', # 5
+          'angle_prevresp_z', 
+          'angle_prevresp_v', 
+          'angle_prevresp_zv',
+          'weibull_nohist', # 9
+          'weibull_prevresp_z', 
+          'weibull_prevresp_v', 
+          'weibull_prevresp_zv',
           ]
 
 if isinstance(opts.model, str):
@@ -76,7 +83,10 @@ m = models[opts.model]
 # NOW RUN THE FITS ON THIS DATASET
 
 data = pd.read_csv(os.path.join(datapath, '%s.csv' % dataset))
-data = data.dropna(subset=['rt', 'response', 'prevresp', 'prevfb', 'signed_contrast'])
+data = data.dropna(subset=['rt', 'response', 'prevresp', 'prevfb', 'stimulus'])
 
 # FIT THE ACTUAL MODEL
-utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=2000)
+m_fitted = utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=5000)
+
+# PLOT SEVERAL THINGS AFTERWARDS
+utils_hddmnn.plot_model(m_fitted, os.path.join(modelpath, dataset, m))

@@ -5,20 +5,14 @@ General functions and queries for the analysis of behavioral data from the IBL t
 Guido Meijer, Anne Urai, Alejandro Pan Vazquez & Miles Wells
 16 Jan 2020
 """
-import warnings
 import os
-from io import BytesIO
-from zipfile import ZipFile
-from urllib.request import urlopen
-
 import seaborn as sns
 import matplotlib
 import numpy as np
-#import datajoint as dj
 import pandas as pd
 import matplotlib.pyplot as plt
 import brainbox.behavior.pyschofit as psy
-
+import scipy as sp
 
 def seaborn_style():
     """
@@ -291,8 +285,9 @@ def corrfunc(x, y, **kws):
 
     # if this correlates, draw a regression line across groups
     if pval < 0.05/4:
-        sns.regplot(x, y, truncate=True, color='gray',
-        scatter=False, ci=None, robust=True, ax=ax)
+        data = pd.DataFrame({'x':x, 'y':y})
+        sns.regplot(data=data, x='x', y='y', truncate=True, color='gray',
+                    scatter=False, ci=None, robust=True, ax=ax)
 
     # now plot the datapoint, with age groups
     if 'yerr' in kws.keys():
@@ -306,3 +301,72 @@ def corrfunc(x, y, **kws):
         txt = r"$\rho$({}) = {:.3f}".format(len(x)-2, r) + "\n" + "p < 0.0001"
     ax.annotate(txt, xy=(.7, .1), xycoords='axes fraction', fontsize='small')
 
+
+
+def results_long2wide(md):
+
+    # recode to something more useful
+    # 0. replace x_subj(yy).ZZZZ with x(yy)_subj.ZZZZ
+    md["colname_tmp"] = md["index"].replace('.+\_subj\(.+\)\..+', '.+\(.+\)\_subj\..+', regex=True)
+
+    # 1. separate the subject from the parameter
+    new = md["index"].str.split("_subj.", n=1, expand=True)
+    md["parameter"] = new[0]
+    md["subj_idx"] = new[1]
+    new = md["subj_idx"].str.split("\)\.", n=1, expand=True)
+
+    # separate out subject idx and parameter value
+    for index, row in new.iterrows():
+        if row[1] == None:
+            row[1] = row[0]
+            row[0] = None
+
+    md["parameter_condition"] = new[0]
+    md["subj_idx"] = new[1]
+
+    # pivot to put parameters as column names and subjects as row names
+    md = md.drop('index', axis=1)
+    md = md.drop('Unnamed: 0', axis=1)
+    md_wide = md.pivot_table(index=['subj_idx'], values='mean',
+                             columns=['parameter', 'parameter_condition']).reset_index()
+    return md_wide
+
+def results_long2wide_hddmnn(md, name_col="index", val_col='mean'):
+    # Anne Urai, 2022: include a little parser that returns a more manageable output
+    # can be used on full_parameter_dict from hddm_dataset_generators.simulator_h_c
+    # or on the output of gen_stats()
+    import re # regexp
+
+    # recode to something more useful
+    # 0. replace x_subj(yy).ZZZZ with x(yy)_subj.ZZZZ
+    md["colname_tmp"] = [re.sub(".+\_subj\(.+\)\..+", ".+\(.+\)\_subj\..+", i) for i in list(md[name_col])]
+
+    # 1. separate the subject from the parameter
+    new = md[name_col].str.split("_subj.", n=1, expand=True)
+    md["parameter"] = new[0]
+    md["subj_idx"] = new[1]
+
+    # only run this below if it's not a regression model!
+    if not any(md[name_col].str.contains('Intercept', case=False)) \
+        and not any(md[name_col].str.contains('indirect', case=False)):
+        new = md["subj_idx"].str.split("\)\.", n=1, expand=True)
+        # separate out subject idx and parameter value
+        for index, row in new.iterrows():
+            if row[1] == None:
+                row[1] = row[0]
+                row[0] = None
+
+        md["parameter_condition"] = new[0]
+        md["subj_idx"] = new[1]
+
+        # pivot to put parameters as column names and subjects as row names
+        md = md.drop(name_col, axis=1)
+        md_wide = md.pivot_table(index=['subj_idx'], values=val_col,
+                                 columns=['parameter', 'parameter_condition']).reset_index()
+    else:
+        # pivot to put parameters as column names and subjects as row names
+        md = md.drop(name_col, axis=1)
+        md_wide = md.pivot_table(index=['subj_idx'], values=val_col,
+                                 columns=['parameter']).reset_index()
+        
+    return md_wide

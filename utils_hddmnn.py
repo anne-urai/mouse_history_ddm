@@ -3,6 +3,10 @@ import numpy as np
 import scipy as sp
 import sys, os, glob, time
 
+import matplotlib
+matplotlib.use('Agg') # to still plot even when no display is defined
+import matplotlib.pyplot as plt
+
 # more handy imports
 import hddm, kabuki
 
@@ -50,6 +54,8 @@ def run_model(data, modelname, mypath, n_samples=1000, trace_id=0):
     group_traces = m.get_group_traces()
     group_traces.to_csv(os.path.join(mypath, 'group_traces.csv'))
 
+    return m
+
 # ============================================ #
 # MODEL COMPARISON INDICES
 # ============================================ #
@@ -77,29 +83,51 @@ def bic(self):
     return bic
 
 
-def results_long2wide(md):
+def plot_model(m, savepath):
 
-    # recode to something more useful
-    # 0. replace x_subj(yy).ZZZZ with x(yy)_subj.ZZZZ
-    md["colname_tmp"] = md["Unnamed: 0"].str.replace('.+\_subj\(.+\)\..+', '.+\(.+\)\_subj\..+', regex=True)
+    # MAKE SOME PLOTS
+    # for testing parameter trade-offs
+    try:
+        hddm.plotting.plot_posterior_pair(m, samples=50)
+        plt.savefig(os.path.join(savepath, 'parameter_pair_plot.png'))
+    except: pass
 
-    # 1. separate the subject from the parameter
-    new = md["Unnamed: 0"].str.split("_subj.", n=1, expand=True)
-    md["parameter"] = new[0]
-    md["subj_idx"] = new[1]
-    new = md["subj_idx"].str.split("\)\.", n=1, expand=True)
+    # to see the overall model behave
+    try:
+        hddm.plotting.plot_posterior_predictive(model = m,
+                                            columns = 4, # groupby = ['subj_idx'],
+                                            value_range = np.arange(0, 3, 0.1),
+                                            plot_func = hddm.plotting._plot_func_model,
+                                            parameter_recovery_mode = True,
+                                            **{'add_legend': False,
+                                            'alpha': 0.01,
+                                            'ylim': 6.0,
+                                            'bin_size': 0.025,
+                                            'add_posterior_mean_model': True,
+                                            'add_posterior_mean_rts': True,
+                                            'add_posterior_uncertainty_model': True,
+                                            'add_posterior_uncertainty_rts': False,
+                                            'samples': 200,
+                                            'legend_fontsize': 7,
+                                            'legend_loc': 'upper left',
+                                            'linewidth_histogram': 1.0,
+                                            'subplots_adjust': {'top': 0.9, 'hspace': 0.35, 'wspace': 0.3}})
+        plt.savefig(os.path.join(savepath, 'posterior_predictive_model_plot.png'))
+    except: pass
 
-    # separate out subject idx and parameter value
-    for index, row in new.iterrows():
-        if row[1] == None:
-            row[1] = row[0]
-            row[0] = None
-
-    md["parameter_condition"] = new[0]
-    md["subj_idx"] = new[1]
-
-    # pivot to put parameters as column names and subjects as row names
-    md = md.drop('Unnamed: 0', axis=1)
-    md_wide = md.pivot_table(index=['subj_idx'], values='mean',
-                             columns=['parameter', 'parameter_condition']).reset_index()
-    return md_wide
+    try:
+        hddm.plotting.plot_posterior_predictive(model = m,
+                                            columns = 4, # groupby = ['subj_idx'],
+                                            value_range = np.arange(-4, 4, 0.01),
+                                            plot_func = hddm.plotting._plot_func_posterior_pdf_node_nn,
+                                            parameter_recovery_mode = True,
+                                            **{'alpha': 0.01,
+                                            'ylim': 3,
+                                            'bin_size': 0.05,
+                                            'add_posterior_mean_rts': True,
+                                            'add_posterior_uncertainty_rts': True,
+                                            'samples': 200,
+                                            'legend_fontsize': 7,
+                                            'subplots_adjust': {'top': 0.9, 'hspace': 0.3, 'wspace': 0.3}})
+        plt.savefig(os.path.join(savepath, 'posterior_predictive_plot.png'))
+    except: pass
