@@ -86,7 +86,7 @@ data = pd.read_csv(os.path.join(datapath, '%s.csv' % dataset))
 data = data.dropna(subset=['rt', 'response', 'prevresp', 'prevfb', 'stimulus'])
 
 # FIT THE ACTUAL MODEL
-m_fitted = utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=5000)
+m_fitted = utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=100)
 
 # PLOT SEVERAL THINGS AFTERWARDS
 utils_hddmnn.plot_model(m_fitted, os.path.join(modelpath, dataset, m))

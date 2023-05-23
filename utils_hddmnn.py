@@ -27,11 +27,8 @@ def run_model(data, modelname, mypath, n_samples=1000, trace_id=0):
 
     # make a new folder if it doesn't exist yet
     if not os.path.exists(mypath):
-        try:
-            os.makedirs(mypath)
-            print('creating directory %s' % mypath)
-        except:
-            pass
+        os.makedirs(mypath)
+        print('creating directory %s' % mypath)
 
     print("begin sampling") # this is the core of the fitting
     m.sample(n_samples, burn = np.max([n_samples/10, 100]))
@@ -87,14 +84,12 @@ def plot_model(m, savepath):
 
     # MAKE SOME PLOTS
     # for testing parameter trade-offs
-    try:
-        hddm.plotting.plot_posterior_pair(m, samples=50)
-        plt.savefig(os.path.join(savepath, 'parameter_pair_plot.png'))
-    except: pass
+    hddm.plotting.plot_posterior_pair(m, samples=50,
+                                      save=True, save_path=savepath)
 
     # to see the overall model behave
-    try:
-        hddm.plotting.plot_posterior_predictive(model = m,
+    hddm.plotting.plot_posterior_predictive(model = m,
+                                            save=True, save_path=savepath,
                                             columns = 4, # groupby = ['subj_idx'],
                                             value_range = np.arange(0, 3, 0.1),
                                             plot_func = hddm.plotting._plot_func_model,
@@ -112,11 +107,10 @@ def plot_model(m, savepath):
                                             'legend_loc': 'upper left',
                                             'linewidth_histogram': 1.0,
                                             'subplots_adjust': {'top': 0.9, 'hspace': 0.35, 'wspace': 0.3}})
-        plt.savefig(os.path.join(savepath, 'posterior_predictive_model_plot.png'))
-    except: pass
+    plt.savefig(os.path.join(savepath, 'posterior_predictive_model_plot.png'))
 
-    try:
-        hddm.plotting.plot_posterior_predictive(model = m,
+    hddm.plotting.plot_posterior_predictive(model = m,
+                                            save=True, save_path=savepath,
                                             columns = 4, # groupby = ['subj_idx'],
                                             value_range = np.arange(-4, 4, 0.01),
                                             plot_func = hddm.plotting._plot_func_posterior_pdf_node_nn,
@@ -129,5 +123,4 @@ def plot_model(m, savepath):
                                             'samples': 200,
                                             'legend_fontsize': 7,
                                             'subplots_adjust': {'top': 0.9, 'hspace': 0.3, 'wspace': 0.3}})
-        plt.savefig(os.path.join(savepath, 'posterior_predictive_plot.png'))
-    except: pass
+    plt.savefig(os.path.join(savepath, 'posterior_predictive_plot.png'))
