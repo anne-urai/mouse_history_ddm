@@ -68,7 +68,8 @@ models = ['ddm_nohist_stimcat',
           'angle_prevresp_z', 
           'angle_prevresp_v', 
           'angle_prevresp_zv',
-          'weibull_nohist', # 9
+          'angle_stimcat_prevresp_zv',
+          'weibull_nohist', # 10
           'weibull_prevresp_z', 
           'weibull_prevresp_v', 
           'weibull_prevresp_zv',
@@ -86,7 +87,7 @@ data = pd.read_csv(os.path.join(datapath, '%s.csv' % dataset))
 data = data.dropna(subset=['rt', 'response', 'prevresp', 'prevfb', 'stimulus'])
 
 # FIT THE ACTUAL MODEL
-m_fitted = utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=100)
+m_fitted = utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=5000)
 
 # PLOT SEVERAL THINGS AFTERWARDS
 utils_hddmnn.plot_model(m_fitted, os.path.join(modelpath, dataset, m))

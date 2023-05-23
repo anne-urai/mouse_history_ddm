@@ -31,8 +31,12 @@ def run_model(data, modelname, mypath, n_samples=1000, trace_id=0):
         print('creating directory %s' % mypath)
 
     print("begin sampling") # this is the core of the fitting
-    m.sample(n_samples, burn = np.max([n_samples/10, 100]))
+    m.sample(n_samples, burn = np.max([n_samples/10, 100]),
+             dbname='traces.db', db='pickle')
 
+    print('saving model itself')
+    m.save(os.path.join(mypath, 'model'))
+    
     print("save model comparison indices")
     df = dict()
     df['dic'] = [m.dic]

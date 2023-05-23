@@ -68,7 +68,20 @@ def make_model(data, mname_full):
                                    is_group_model = True,
                                    group_only_regressors=False,
                                    informative = False)
+
+    elif mname == 'stimcat_prevresp_zv':
         
+        v_reg = {'model': 'v ~ C:(signed_contrast) + prevresp', 'link_func': lambda x:x}
+        z_reg = {'model': 'z ~ 1 + prevresp', 'link_func': lambda x: x}
+        
+        hddmnn_model = hddm.HDDMnnRegressor(data,
+                                   [v_reg, z_reg],
+                                   model = base_model,
+                                   include = hddm.simulators.model_config[base_model]['hddm_include'],
+                                   p_outlier = 0.05,
+                                   is_group_model = True,
+                                   group_only_regressors=False,
+                                   informative = False)       
     elif mname == 'prevresp_zv':
         
         v_reg = {'model': 'v ~ 1 + stimulus + prevresp', 'link_func': lambda x:x}
