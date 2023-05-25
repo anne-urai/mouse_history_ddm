@@ -11,7 +11,6 @@ import matplotlib
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import brainbox.behavior.pyschofit as psy
 import scipy as sp
 
 def seaborn_style():
@@ -66,6 +65,9 @@ def datapath():
 # ================================================================== #
 
 def fit_psychfunc(df):
+
+    import brainbox.behavior.pyschofit as psy
+
     choicedat = df.groupby('signed_contrast').agg(
         {'choice': 'count', 'choice2': 'mean'}).reset_index()
     if len(choicedat) >= 4: # need some minimum number of unique x-values
@@ -88,6 +90,9 @@ def fit_psychfunc(df):
 
 
 def plot_psychometric(x, y, subj, **kwargs):
+
+    import brainbox.behavior.pyschofit as psy
+
     # summary stats - average psychfunc over observers
     df = pd.DataFrame({'signed_contrast': x, 'choice': y,
                        'choice2': y, 'subject_nickname': subj})

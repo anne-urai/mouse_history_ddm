@@ -2,17 +2,28 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 import sys, os, glob, time
+import datetime
 
 import matplotlib
 matplotlib.use('Agg') # to still plot even when no display is defined
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # more handy imports
 import hddm, kabuki
+from utils_plot import results_long2wide_hddmnn, corrfunc
 
 # ============================================ #
 # define some functions
 # ============================================ #
+
+# Get around a problem with saving regression outputs in Python 3
+def savePatch(self, fname):
+    import pickle
+    with open(fname, 'wb') as f:
+        pickle.dump(self, f)
+        
+hddm.HDDMnn.savePatch = savePatch
 
 def run_model(data, modelname, mypath, n_samples=1000, trace_id=0):
 
@@ -31,11 +42,15 @@ def run_model(data, modelname, mypath, n_samples=1000, trace_id=0):
         print('creating directory %s' % mypath)
 
     print("begin sampling") # this is the core of the fitting
+
+    # If you are running multiple models simultaneously, make sure to name the .db files differently, otherwise they might all 
+    # write to the same location and when HDDM tries to save the model by consulting the .db file it'll just get a jumble.
     m.sample(n_samples, burn = np.max([n_samples/10, 100]),
-             dbname='traces.db', db='pickle')
+             dbname= os.path.join(mypath, '%s_traces.db'%(modelname)), 
+             db='pickle')
 
     print('saving model itself')
-    m.save(os.path.join(mypath, 'model'))
+    m.savePatch(os.path.join(mypath, 'model.mdl')) # use the patched code
     
     print("save model comparison indices")
     df = dict()
@@ -87,44 +102,56 @@ def bic(self):
 def plot_model(m, savepath):
 
     # MAKE SOME PLOTS
-    # for testing parameter trade-offs
-    hddm.plotting.plot_posterior_pair(m, samples=50,
-                                      save=True, save_path=savepath)
+    # 'Note: The posterior pair plot does not support regression models at this point! Aborting...'
+    # hddm.plotting.plot_posterior_pair(m, samples=50,
+    #                                   save=True, save_path=savepath)
 
-    # to see the overall model behave
-    hddm.plotting.plot_posterior_predictive(model = m,
-                                            save=True, save_path=savepath,
-                                            columns = 4, # groupby = ['subj_idx'],
-                                            value_range = np.arange(0, 3, 0.1),
-                                            plot_func = hddm.plotting._plot_func_model,
-                                            parameter_recovery_mode = True,
-                                            **{'add_legend': False,
-                                            'alpha': 0.01,
-                                            'ylim': 6.0,
-                                            'bin_size': 0.025,
-                                            'add_posterior_mean_model': True,
-                                            'add_posterior_mean_rts': True,
-                                            'add_posterior_uncertainty_model': True,
-                                            'add_posterior_uncertainty_rts': False,
-                                            'samples': 200,
-                                            'legend_fontsize': 7,
-                                            'legend_loc': 'upper left',
-                                            'linewidth_histogram': 1.0,
-                                            'subplots_adjust': {'top': 0.9, 'hspace': 0.35, 'wspace': 0.3}})
-    plt.savefig(os.path.join(savepath, 'posterior_predictive_model_plot.png'))
+    # quick overview of the parameters
+    hddm.plotting.plot_caterpillar(hddm_model = m,
+                                   save=True, path=savepath,
+                                   drop_sd = True,
+                                   keep_key=list(m.get_group_nodes().reset_index()['index']),
+                                   columns=5)
+    
+    hddm.plot_p
+    
+    # across-subject parameter correlation plot
+    results = results_long2wide_hddmnn(m.gen_stats().reset_index())  # point estimate for each parameter and subject
+    g = sns.PairGrid(results, vars=list(set(results.columns) - set(['subj_idx'])))
+    g.map_diag(sns.histplot)
+    g.map_lower(corrfunc)
+    g.map_upper(sns.kdeplot)
+    g.savefig(os.path.join(savepath, 'pairgrid_corrplot.png'))
 
+    # more classical posterior predictive on the RT distributions
+    # the likelihood-based posterior predictives (_plot_func_posterior_pdf_node_nn) are not yet implemented for HDDMnn regression models, use simulated ones instead
     hddm.plotting.plot_posterior_predictive(model = m,
-                                            save=True, save_path=savepath,
-                                            columns = 4, # groupby = ['subj_idx'],
-                                            value_range = np.arange(-4, 4, 0.01),
-                                            plot_func = hddm.plotting._plot_func_posterior_pdf_node_nn,
-                                            parameter_recovery_mode = True,
+                                            save=True, path=savepath,
+                                            # columns = 4, #groupby = ['subj_idx'],
+                                            value_range = np.arange(-2, 2, 0.01),
+                                            plot_func = hddm.plotting._plot_func_posterior_node_from_sim,
+                                            figsize=(15,24),
+                                            parameter_recovery_mode = False,
                                             **{'alpha': 0.01,
+                                            'add_legend':False,
                                             'ylim': 3,
                                             'bin_size': 0.05,
                                             'add_posterior_mean_rts': True,
-                                            'add_posterior_uncertainty_rts': True,
-                                            'samples': 200,
-                                            'legend_fontsize': 7,
-                                            'subplots_adjust': {'top': 0.9, 'hspace': 0.3, 'wspace': 0.3}})
-    plt.savefig(os.path.join(savepath, 'posterior_predictive_plot.png'))
+                                            'add_posterior_uncertainty_rts': False,
+                                            #'samples': 30,
+                                            'data_color':'darkblue',
+                                            'posterior_mean_color':'firebrick',
+                                            # 'legend_fontsize': 7,
+                                            'subplots_adjust': {'top': 0.9, 'hspace': 1, 'wspace': 0.3}})
+    
+
+    # # posterior plot for each variable
+    # # https://github.com/hcp4715/hddm_docker/blob/master/example/HDDM_official_tutorial_ArviZ.ipynb
+    # group_traces["chain"] = 0
+    # group_traces["draw"] = np.arange(len(group_traces), dtype=int)
+    # group_traces = group_traces.set_index(["chain", "draw"])
+    # xdata = xr.Dataset.from_dataframe(group_traces)
+    # az.plot_posterior(xdata, hdi_prob=0.95, ref_val=0)
+    # plt.savefig(os.path.join(mypath, 'param_hdi.png'))
+
+

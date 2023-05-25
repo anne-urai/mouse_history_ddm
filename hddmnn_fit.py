@@ -75,6 +75,11 @@ models = ['ddm_nohist_stimcat',
           'weibull_prevresp_zv',
           ]
 
+models = ['ddm_nohist_stimcat_dummycode',
+          'ddm_nohist_stimcat_reducedrankcode',
+          'ddm_nohist_stimcat',
+          'ddm_nohist']
+
 if isinstance(opts.model, str):
     opts.model = [opts.model]
 # select only this model
@@ -87,7 +92,10 @@ data = pd.read_csv(os.path.join(datapath, '%s.csv' % dataset))
 data = data.dropna(subset=['rt', 'response', 'prevresp', 'prevfb', 'stimulus'])
 
 # FIT THE ACTUAL MODEL
-m_fitted = utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=5000)
+if not os.path.exists(os.path.join(modelpath, dataset, m, 'model.mdl')):
+    m_fitted = utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=10000)
+else:
+    # in case we're reloading
+    m_fitted = hddm.load(os.path.join(modelpath, dataset, m, 'model.mdl'))
+    utils_hddmnn.plot_model(m_fitted, os.path.join(modelpath, dataset, m))     # PLOT SEVERAL THINGS AFTERWARDS
 
-# PLOT SEVERAL THINGS AFTERWARDS
-utils_hddmnn.plot_model(m_fitted, os.path.join(modelpath, dataset, m))
