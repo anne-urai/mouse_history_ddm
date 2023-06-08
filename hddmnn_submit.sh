@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -l
 
 # https://pubappslu.atlassian.net/wiki/spaces/HPCWIKI/pages/37028013/Your+first+GPU+job
 #SBATCH --output /home/uraiae/jobs/hddmnn_fit-%A_%a.out

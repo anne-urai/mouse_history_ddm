@@ -78,7 +78,13 @@ models = ['ddm_nohist_stimcat',
 models = ['ddm_nohist_stimcat_dummycode',
           'ddm_nohist_stimcat_reducedrankcode',
           'ddm_nohist_stimcat',
-          'ddm_nohist']
+          'ddm_nohist',
+          'ddm_prevresp_zv',
+          'angle_nohist_stimcat_dummycode',
+          'angle_nohist_stimcat_reducedrankcode',
+          'angle_nohist_stimcat',
+          'angle_nohist',
+          'angle_prevresp_zv']
 
 if isinstance(opts.model, str):
     opts.model = [opts.model]
