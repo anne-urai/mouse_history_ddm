@@ -99,9 +99,13 @@ data = data.dropna(subset=['rt', 'response', 'prevresp', 'prevfb', 'stimulus'])
 
 # FIT THE ACTUAL MODEL
 if not os.path.exists(os.path.join(modelpath, dataset, m, 'model.mdl')):
-    m_fitted = utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=10000)
+    m_fitted = utils_hddmnn.run_model(data, m, os.path.join(modelpath, dataset, m), n_samples=5000)
+    utils_hddmnn.plot_model(m_fitted, os.path.join(modelpath, dataset, m))     # PLOT SEVERAL THINGS AFTERWARDS
 else:
     # in case we're reloading
+    print('loading in:')
+    print(os.path.join(modelpath, dataset, m, 'model.mdl'))
+    
     m_fitted = hddm.load(os.path.join(modelpath, dataset, m, 'model.mdl'))
     utils_hddmnn.plot_model(m_fitted, os.path.join(modelpath, dataset, m))     # PLOT SEVERAL THINGS AFTERWARDS
 

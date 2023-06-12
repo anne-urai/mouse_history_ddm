@@ -24,6 +24,7 @@ def savePatch(self, fname):
         pickle.dump(self, f)
         
 hddm.HDDMnn.savePatch = savePatch
+hddm.HDDMnnRegressor.savePatch = savePatch
 
 def run_model(data, modelname, mypath, n_samples=1000, trace_id=0):
 
@@ -46,7 +47,7 @@ def run_model(data, modelname, mypath, n_samples=1000, trace_id=0):
     # If you are running multiple models simultaneously, make sure to name the .db files differently, otherwise they might all 
     # write to the same location and when HDDM tries to save the model by consulting the .db file it'll just get a jumble.
     m.sample(n_samples, burn = np.max([n_samples/10, 100]),
-             dbname= os.path.join(mypath, '%s_traces.db'%(modelname)), 
+             dbname= os.path.join(mypath, 'traces.db'), 
              db='pickle')
 
     print('saving model itself')
@@ -112,17 +113,7 @@ def plot_model(m, savepath):
                                    drop_sd = True,
                                    keep_key=list(m.get_group_nodes().reset_index()['index']),
                                    columns=5)
-    
-    hddm.plot_p
-    
-    # across-subject parameter correlation plot
-    results = results_long2wide_hddmnn(m.gen_stats().reset_index())  # point estimate for each parameter and subject
-    g = sns.PairGrid(results, vars=list(set(results.columns) - set(['subj_idx'])))
-    g.map_diag(sns.histplot)
-    g.map_lower(corrfunc)
-    g.map_upper(sns.kdeplot)
-    g.savefig(os.path.join(savepath, 'pairgrid_corrplot.png'))
-
+        
     # more classical posterior predictive on the RT distributions
     # the likelihood-based posterior predictives (_plot_func_posterior_pdf_node_nn) are not yet implemented for HDDMnn regression models, use simulated ones instead
     hddm.plotting.plot_posterior_predictive(model = m,
@@ -144,6 +135,14 @@ def plot_model(m, savepath):
                                             # 'legend_fontsize': 7,
                                             'subplots_adjust': {'top': 0.9, 'hspace': 1, 'wspace': 0.3}})
     
+
+    # across-subject parameter correlation plot
+    results = results_long2wide_hddmnn(m.gen_stats().reset_index())  # point estimate for each parameter and subject
+    g = sns.PairGrid(results, vars=list(set(results.columns) - set(['subj_idx'])))
+    g.map_diag(sns.histplot)
+    g.map_lower(corrfunc)
+    g.map_upper(sns.kdeplot)
+    g.savefig(os.path.join(savepath, 'pairgrid_corrplot.png'))
 
     # # posterior plot for each variable
     # # https://github.com/hcp4715/hddm_docker/blob/master/example/HDDM_official_tutorial_ArviZ.ipynb
